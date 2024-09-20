@@ -2,16 +2,26 @@ from abc import ABC, abstractmethod
 from typing import List
 import os
 import torch
-import numpy as np
 from PIL import Image
     
 from ..constants import HF_CACHE_DIR
 
-def image_loader(image_path):
-    if image_path.split('.')[-1] == 'npy':
-        return Image.fromarray(np.load(image_path)[:, :, [2, 1, 0]], 'RGB')
+
+# def image_loader(image_path):
+#     if image_path.split('.')[-1] == 'npy':
+#         return Image.fromarray(np.load(image_path)[:, :, [2, 1, 0]], 'RGB')
+#     else:
+#         return Image.open(image_path).convert("RGB")
+
+
+def image_loader(image):
+    if isinstance(image, torch.Tensor):
+        return Image.fromarray(image.detach().cpu().numpy())
+    elif isinstance(image, Image.Image):
+        return image
     else:
-        return Image.open(image_path).convert("RGB")
+        raise TypeError("Unknown type of the data was given as images.")
+
 
 class ScoreModel(ABC):
     def __init__(self,
