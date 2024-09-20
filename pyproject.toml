@@ -30,7 +30,7 @@ dependencies = [
     "sentencepiece>=0.1.99",
     "transformers>=4.44.2",
     "datasets>=2.15.0",
-    "tokenizers>=0.20.0rc1",
+    "tokenizers>=0.19.1",
     "omegaconf==2.3.0",
     "iopath>=0.1.10",
     "fairscale>=0.4.13",
