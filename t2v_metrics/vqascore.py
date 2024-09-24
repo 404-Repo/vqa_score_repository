@@ -3,7 +3,7 @@ from typing import TypedDict
 import torch
 import torch.nn as nn
 
-from clip_t5_model.clip_t5_model import CLIPT5Model
+from .clip_t5_model.clip_t5_model import CLIPT5Model
 
 
 class ImageTextDict(TypedDict):
