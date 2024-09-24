@@ -38,11 +38,12 @@ dependencies = [
     "scikit-learn>=1.5.2",
     "fire>=0.6.0",
     "tiktoken>=0.7.0",
+    "ctranslate>=4.4.0"
 ]
 
 [tool.setuptools]
 include-package-data = true
-packages = ["t2v_metrics", "t2v_metrics.models"]
+packages = ["t2v_metrics"]
 
 [tool.setuptools.package-data]
 't2v_metrics' = ['**/*.json', '**/*.yaml', '**/*.py']
