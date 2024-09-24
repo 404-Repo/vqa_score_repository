@@ -37,9 +37,9 @@ class VQAScore(nn.Module):
         if isinstance(texts, str):
             texts = [texts]
 
-        scores = torch.zeros(len(images), len(texts)).to(self._device)
-        for i, image in enumerate(images):
-            scores[i] = self._model.forward([image] * len(texts), texts, **kwargs)
+        # scores = torch.zeros(len(images), len(texts)).to(self._device)
+        # for i, image in enumerate(images):
+        scores = self._model.forward(images * len(texts), texts, **kwargs)
         return scores
 
     def preload_model(self, model_name: str):
