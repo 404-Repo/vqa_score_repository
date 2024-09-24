@@ -1,7 +1,9 @@
 import gc
 
 import torch
+import torch.nn.functional as F
 from transformers import AutoTokenizer
+from torchvision import transforms
 
 from t2v_metrics.visual_model import BaseVisualModel
 from .language_model.clip_t5 import CLIPT5ForConditionalGeneration
@@ -36,7 +38,7 @@ CLIP_T5_MODELS = {
 
 
 class CLIPT5Model(BaseVisualModel):
-    def __init__(self, device: str = "cuda:0"):
+    def __init__(self, device: str = "cuda"):
         """
 
         Parameters
@@ -50,6 +52,7 @@ class CLIPT5Model(BaseVisualModel):
         self._question_template = 'Does this figure show "{}"? Please answer yes or no.'
         self._answer_template = "Yes"
         self._image_token = "<image>"
+        self._image_token_index = -200
 
         self._processor = None
         self._model = None
@@ -57,6 +60,29 @@ class CLIPT5Model(BaseVisualModel):
 
         self._context_len = 2048
         self._padding = -100
+
+    def preprocess_inputs(self, images: list[torch.Tensor]) -> tuple[torch.Tensor, torch.Tensor]:
+        """
+
+        Parameters
+        ----------
+        images: a list with images (renders of the generated 3D object) stored as torch tensors on the device;
+        prompt_list: a list of prompts
+
+        Returns
+        -------
+        stacked_images: a torch tensor with stacked input images
+        tokenized_prompts: a torch tensor with tokenized input prompts
+        """
+        stacked_images = torch.stack(images, dim=0).to(self._device) / 255.0
+        stacked_images = stacked_images.permute(0, 3, 1, 2).to(torch.float16)
+        stacked_images = F.interpolate(stacked_images, size=(336, 336), mode="bicubic", align_corners=False)
+        mean = torch.tensor([0.48145466, 0.4578275, 0.40821073]).view(1, 3, 1, 1) * 3
+        std = torch.tensor([0.26862954, 0.26130258, 0.27577711]).view(1, 3, 1, 1) * 3
+        normalize = transforms.Normalize(mean, std)
+        stacked_images = normalize(stacked_images)
+
+        return stacked_images
 
     @torch.no_grad()
     @torch.autocast(device_type='cuda', dtype=torch.bfloat16)
@@ -90,9 +116,10 @@ class CLIPT5Model(BaseVisualModel):
 
         # Formatting for CLIP-FlanT5 desired input including system message and image tokens
         questions = [self._format_question(question) for question in questions]
+        answers = [self._format_answer(answer) for answer in answers]
 
-        input_ids = [self._tokenizer_image_token(qs, self._image_token, return_tensors='pt') for qs in questions]
-        labels = [self._tokenizer_image_token(ans, self._image_token, return_tensors='pt') for ans in answers]
+        input_ids = [self._tokenize_image_token(qs, self._image_token_index, return_tensors='pt') for qs in questions]
+        labels = [self._tokenize_image_token(ans, self._image_token_index, return_tensors='pt') for ans in answers]
 
         input_ids = torch.nn.utils.rnn.pad_sequence(input_ids, batch_first=True, padding_value=self._tokenizer.pad_token_id)
         labels = torch.nn.utils.rnn.pad_sequence(labels, batch_first=True, padding_value=self._padding)
@@ -100,7 +127,7 @@ class CLIPT5Model(BaseVisualModel):
         input_ids = input_ids[:, :self._tokenizer.model_max_length]
         labels = labels[:, :self._tokenizer.model_max_length]
 
-        attention_mask = input_ids.ne(self.tokenizer.pad_token_id)
+        attention_mask = input_ids.ne(self._tokenizer.pad_token_id)
         decoder_attention_mask = labels.ne(self._padding)
 
         # sending tensors to device
@@ -108,6 +135,8 @@ class CLIPT5Model(BaseVisualModel):
         attention_mask = attention_mask.to(self._device)
         decoder_attention_mask = decoder_attention_mask.to(self._device)
         labels = labels.to(self._device)
+
+        images = self.preprocess_inputs(images)
 
         # model parameters
         model_input_kwargs = {
@@ -151,7 +180,10 @@ class CLIPT5Model(BaseVisualModel):
         """
         return self._system_message + " USER: " + self._image_token + "\n" + question + " ASSISTANT: "
 
-    def _tokenize_image_token(self, text: str, image_token_index: str, return_tensors: str | None = None):
+    def _format_answer(self, answer):
+        return answer
+
+    def _tokenize_image_token(self, text: str, image_token_index: int, return_tensors: str | None = None):
         """
         Function for tokenizing input strings with image tokens
 
@@ -179,12 +211,12 @@ class CLIPT5Model(BaseVisualModel):
         return input_ids
 
     @staticmethod
-    def _insert_separator(X: str, sep: str):
+    def _insert_separator(X: list[int], sep: str):
         """
         Function for inserting a separator in the input string
         Parameters
         ----------
-        X: input string that will be edited
+        X: input list that will be edited
         sep: separator to be inserted in the input string
 
         Returns
@@ -201,15 +233,16 @@ class CLIPT5Model(BaseVisualModel):
         ----------
         model_name: the name of the model that will be loaded: clip-flant5-xxl (~11B) or clip-flant5-xl (~3B)
         """
+        print("Loading model ...")
         model_max_length = CLIP_T5_MODELS[model_name]['tokenizer']['model_max_length']
         # image_aspect_ratio = CLIP_T5_MODELS[self.model_name]['model']['image_aspect_ratio']
 
         tokenizer_dict = {}
         tokenizer_dict['model_max_length'] = model_max_length
 
-        self._tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False, **tokenizer_dict)
-        self._model = CLIPT5ForConditionalGeneration.from_pretrained(model_name)
-        self._model.resize_token_embeddings(len(self._tokenizer)) # might be redundant
+        self._tokenizer = AutoTokenizer.from_pretrained(CLIP_T5_MODELS[model_name]["tokenizer"]["path"], **tokenizer_dict)
+        self._model = CLIPT5ForConditionalGeneration.from_pretrained(CLIP_T5_MODELS[model_name]["model"]["path"])
+        # self._model.resize_token_embeddings(len(self._tokenizer))  # might be redundant
 
         if not self._model.get_vision_tower().is_loaded:
             self._model.get_vision_tower().load_model()
@@ -219,6 +252,7 @@ class CLIPT5Model(BaseVisualModel):
         self._model.eval()
 
         self._processor = self._model.get_vision_tower().image_processor
+        print("Done.")
 
     def unload_model(self):
         """Function for unloading the model"""
