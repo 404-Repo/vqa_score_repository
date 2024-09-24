@@ -41,9 +41,7 @@ class VQAScore(nn.Module):
         if len(images) != len(texts):
             texts = [copy.deepcopy(texts[0]) for i in range(len(images))]
 
-        # scores = torch.zeros(len(images), len(texts)).to(self._device)
-        # for i, image in enumerate(images):
-        scores = self._model.forward(images * len(texts), texts, **kwargs)
+        scores = self._model.forward(images, texts, **kwargs)
         return scores
 
     def preload_model(self, model_name: str):
