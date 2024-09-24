@@ -3,12 +3,12 @@ from abc import ABC, abstractmethod
 import torch
 
 
-def BaseVisualModel(ABC):
+class BaseVisualModel(ABC):
 
     @abstractmethod
     @torch.no_grad()
     @torch.autocast(device_type='cuda', dtype=torch.bfloat16)
-    def forward(images: list[torch.Tensor] | torch.Tensor,
+    def forward(self, images: list[torch.Tensor] | torch.Tensor,
                 texts: list[str] | str,
                 question_template: str,
                 answer_template: str) -> torch.Tensor:
@@ -28,7 +28,7 @@ def BaseVisualModel(ABC):
         pass
 
     @abstractmethod
-    def preload_model(model_name: str):
+    def preload_model(self, model_name: str):
         """
 
         Parameters
@@ -42,7 +42,7 @@ def BaseVisualModel(ABC):
         pass
 
     @abstractmethod
-    def unload_model():
+    def unload_model(self):
         """
 
         Returns
