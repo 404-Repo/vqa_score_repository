@@ -1,3 +1,4 @@
+import copy
 from typing import TypedDict
 
 import torch
@@ -36,6 +37,9 @@ class VQAScore(nn.Module):
             images = [images]
         if isinstance(texts, str):
             texts = [texts]
+
+        if len(images) != len(texts):
+            texts = [copy.deepcopy(texts[0]) for i in range(len(images))]
 
         # scores = torch.zeros(len(images), len(texts)).to(self._device)
         # for i, image in enumerate(images):
