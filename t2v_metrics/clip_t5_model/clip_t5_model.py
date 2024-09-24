@@ -3,7 +3,7 @@ import gc
 import torch
 from transformers import AutoTokenizer
 
-from t2v_metrics_v2.visual_model import BaseVisualModel
+from t2v_metrics.visual_model import BaseVisualModel
 from .language_model.clip_t5 import CLIPT5ForConditionalGeneration
 
 
