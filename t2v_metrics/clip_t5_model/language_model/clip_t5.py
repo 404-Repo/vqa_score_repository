@@ -48,6 +48,12 @@ class CLIPT5ForConditionalGeneration(T5ForConditionalGeneration):
     config_class = CLIPT5Config
 
     def __init__(self, config):
+        """
+
+        Parameters
+        ----------
+        config
+        """
         super(CLIPT5ForConditionalGeneration, self).__init__(config)
         self.embed_tokens = self.encoder.embed_tokens
         if hasattr(config, "mm_vision_tower"):
@@ -55,17 +61,34 @@ class CLIPT5ForConditionalGeneration(T5ForConditionalGeneration):
             self.mm_projector = build_vision_projector(config)
 
     def get_vision_tower(self):
+        """"""
         vision_tower = getattr(self, 'vision_tower', None)
         if type(vision_tower) is list:
             vision_tower = vision_tower[0]
         return vision_tower
 
     def get_model(self):
+        """"""
         return self # for compatibility with LlavaMetaForCausalLM
     
     def prepare_inputs_labels_for_multimodal(
         self, input_ids, attention_mask, decoder_attention_mask, past_key_values, labels, images
     ):
+        """
+
+        Parameters
+        ----------
+        input_ids
+        attention_mask
+        decoder_attention_mask
+        past_key_values
+        labels
+        images
+
+        Returns
+        -------
+
+        """
         # The labels are now separated from the input_ids.
         vision_tower = self.get_vision_tower()
         if vision_tower is None or images is None or input_ids.shape[1] == 1:
@@ -215,7 +238,27 @@ class CLIPT5ForConditionalGeneration(T5ForConditionalGeneration):
         return_dict: Optional[bool] = None,
         **kwargs,
     ) -> Union[Tuple[torch.FloatTensor], Seq2SeqLMOutput]:
-        """"""
+        """
+
+        Parameters
+        ----------
+        input_ids
+        attention_mask
+        decoder_attention_mask
+        past_key_values
+        inputs_embeds
+        labels
+        use_cache
+        output_attentions
+        output_hidden_states
+        images
+        return_dict
+        kwargs
+
+        Returns
+        -------
+
+        """
         output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
         output_hidden_states = (
             output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
@@ -251,7 +294,19 @@ class CLIPT5ForConditionalGeneration(T5ForConditionalGeneration):
         images: Optional[torch.Tensor] = None,
         **kwargs,
     ):
-        """"""
+        """
+
+        Parameters
+        ----------
+        inputs
+        attention_mask
+        images
+        kwargs
+
+        Returns
+        -------
+
+        """
         assert images is not None, "images must be provided"
         assert inputs is not None, "inputs must be provided"
         assert attention_mask is not None, "attention_mask must be provided"
@@ -279,7 +334,26 @@ class CLIPT5ForConditionalGeneration(T5ForConditionalGeneration):
         inputs_embeds=None,
         **kwargs,
     ):
-        """"""
+        """
+
+        Parameters
+        ----------
+        input_ids
+        past_key_values
+        attention_mask
+        head_mask
+        decoder_head_mask
+        decoder_attention_mask
+        cross_attn_head_mask
+        use_cache
+        encoder_outputs
+        inputs_embeds
+        kwargs
+
+        Returns
+        -------
+
+        """
         # cut decoder_input_ids if past_key_values is used
         if past_key_values is not None:
             past_length = past_key_values[0][0].shape[2]
