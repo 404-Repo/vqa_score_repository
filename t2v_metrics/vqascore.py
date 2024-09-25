@@ -38,14 +38,25 @@ class VQAScore(nn.Module):
         if isinstance(texts, str):
             texts = [texts]
 
-        if len(images) != len(texts):
+        if len(images) < len(texts):
             texts = [copy.deepcopy(texts[0]) for i in range(len(images))]
+        else:
+            images = [copy.deepcopy(images[0]) for i in range(len(texts))]
 
         scores = self._model.forward(images, texts, **kwargs)
         return scores
 
     def preload_model(self, model_name: str):
-        """"""
+        """
+
+        Parameters
+        ----------
+        model_name
+
+        Returns
+        -------
+
+        """
         self._model.preload_model(model_name)
 
     def unload_model(self):
