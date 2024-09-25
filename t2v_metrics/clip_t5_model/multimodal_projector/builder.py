@@ -16,6 +16,12 @@ class IdentityMap(nn.Module):
 
 class SimpleResBlock(nn.Module):
     def __init__(self, channels):
+        """
+
+        Parameters
+        ----------
+        channels
+        """
         super().__init__()
         self.pre_norm = nn.LayerNorm(channels)
 
@@ -26,11 +32,31 @@ class SimpleResBlock(nn.Module):
         )
 
     def forward(self, x):
+        """
+
+        Parameters
+        ----------
+        x
+
+        Returns
+        -------
+
+        """
         x = self.pre_norm(x)
         return x + self.proj(x)
 
 
 def build_vision_projector(config):
+    """
+
+    Parameters
+    ----------
+    config
+
+    Returns
+    -------
+
+    """
     projector_type = getattr(config, 'mm_projector_type', 'linear')
 
     if projector_type == 'linear':
