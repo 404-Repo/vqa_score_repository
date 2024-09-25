@@ -19,7 +19,7 @@ class VQAScore(nn.Module):
         self._device = device
         self._model = CLIPT5Model(device)
 
-    def forward(self, images: list[torch.Tensor] | torch.Tensor, texts: list[str] | str, **kwargs):
+    def forward(self, images: list[torch.Tensor], texts: list[str], **kwargs):
         """
 
         Parameters
@@ -33,12 +33,7 @@ class VQAScore(nn.Module):
 
         """
 
-        if isinstance(images, torch.Tensor):
-            images = [images]
-        if isinstance(texts, str):
-            texts = [texts]
-
-        if len(images) < len(texts):
+        if len(images) > len(texts):
             texts = [copy.deepcopy(texts[0]) for i in range(len(images))]
         else:
             images = [copy.deepcopy(images[0]) for i in range(len(texts))]
