@@ -19,12 +19,12 @@ class CLIPVisionTower(nn.Module):
         """"""
         self.vision_tower = CLIPVisionModel.from_pretrained(model_name)
         self.vision_tower.requires_grad_(False)
-        # self._model.eval()
+        self.vision_tower.eval()
 
     def unload_model(self):
         """"""
-        del self._model
-        self._model = None
+        del self.vision_tower
+        self.vision_tower = None
 
         gc.collect()
         torch.cuda.empty_cache()
