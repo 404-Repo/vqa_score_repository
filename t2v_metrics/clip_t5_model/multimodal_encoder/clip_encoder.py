@@ -13,13 +13,13 @@ class CLIPVisionTower(nn.Module):
         self._select_feature = getattr(args, 'mm_vision_select_feature', 'patch')
         self._device = device
 
-        self._model: CLIPVisionModel = None
+        self.vision_tower: CLIPVisionModel = None
 
     def load_model(self, model_name: str):
         """"""
-        self._model = CLIPVisionModel.from_pretrained(model_name)
-        self._model.requires_grad_(False)
-        self._model.eval()
+        self.vision_tower = CLIPVisionModel.from_pretrained(model_name)
+        self.vision_tower.requires_grad_(False)
+        # self._model.eval()
 
     def unload_model(self):
         """"""
@@ -62,7 +62,7 @@ class CLIPVisionTower(nn.Module):
         -------
 
         """
-        image_forward_out = self._model(images.to(device=self._device), output_hidden_states=True)
+        image_forward_out = self.vision_tower(images.to(device=self._device), output_hidden_states=True)
         image_features = self.feature_select(image_forward_out).to(images.dtype)
 
         return image_features
@@ -70,9 +70,9 @@ class CLIPVisionTower(nn.Module):
     @property
     def hidden_size(self):
         """"""
-        return self._model.config.hidden_size
+        return self.vision_tower.config.hidden_size
 
     @property
     def num_patches(self):
         """"""
-        return (self._model.config.image_size // self._model.config.patch_size) ** 2
+        return (self.vision_tower.config.image_size // self.vision_tower.config.patch_size) ** 2
