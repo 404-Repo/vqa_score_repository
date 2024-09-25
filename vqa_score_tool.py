@@ -38,6 +38,8 @@ if __name__ == '__main__':
     score2 = model(images, [prompt2])
     t2 = time()
 
+    score2 = np.exp(np.log(score2).mean())
+
     print(f" It took: {t2 - t1} s")
     print(f" Input prompt: {prompt2}")
     print(f" VQAScore: {score2}")
