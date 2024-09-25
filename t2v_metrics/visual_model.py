@@ -43,11 +43,6 @@ class BaseVisualModel(ABC):
 
     @abstractmethod
     def unload_model(self):
-        """
-
-        Returns
-        -------
-
-        """
+        """"""
         pass
 
