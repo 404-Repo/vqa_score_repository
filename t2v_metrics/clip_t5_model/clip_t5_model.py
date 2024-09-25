@@ -40,7 +40,6 @@ CLIP_T5_MODELS = {
 class CLIPT5Model(BaseVisualModel):
     def __init__(self, device: str = "cuda"):
         """
-
         Parameters
         ----------
         device: string that sets up torch device
@@ -61,18 +60,17 @@ class CLIPT5Model(BaseVisualModel):
         self._context_len = 2048
         self._padding = -100
 
-    def preprocess_inputs(self, images: list[torch.Tensor]) -> tuple[torch.Tensor, torch.Tensor]:
+    def preprocess_inputs(self, images: list[torch.Tensor]) -> tuple[torch.Tensor]:
         """
+        Function for preprocessing images in a batch
 
         Parameters
         ----------
         images: a list with images (renders of the generated 3D object) stored as torch tensors on the device;
-        prompt_list: a list of prompts
 
         Returns
         -------
         stacked_images: a torch tensor with stacked input images
-        tokenized_prompts: a torch tensor with tokenized input prompts
         """
         stacked_images = torch.stack(images, dim=0).to(self._device) / 255.0
         stacked_images = stacked_images.permute(0, 3, 1, 2).to(torch.float16)
@@ -164,6 +162,7 @@ class CLIPT5Model(BaseVisualModel):
         for k in range(lm_prob.shape[0]):
             # exp to cancel the log and get raw prob between 0 and 1
             lm_prob[k] = (-loss_fct(logits[k], labels[k])).exp()
+
         return lm_prob
 
     def _format_question(self, question: str):
@@ -214,6 +213,7 @@ class CLIPT5Model(BaseVisualModel):
     def _insert_separator(X: list[int], sep: str):
         """
         Function for inserting a separator in the input string
+
         Parameters
         ----------
         X: input list that will be edited
@@ -244,14 +244,14 @@ class CLIPT5Model(BaseVisualModel):
         self._model = CLIPT5ForConditionalGeneration.from_pretrained(CLIP_T5_MODELS[model_name]["model"]["path"])
         # self._model.resize_token_embeddings(len(self._tokenizer))  # might be redundant
 
-        if not self._model.get_vision_tower().is_loaded:
-            self._model.get_vision_tower().load_model()
+        # if not self._model.get_vision_tower().is_loaded:
+        #     self._model.get_vision_tower().load_model()
 
         self._model.to(self._device, dtype=torch.bfloat16)
         self._model.requires_grad_(False)
         self._model.eval()
 
-        self._processor = self._model.get_vision_tower().image_processor
+        # self._processor = self._model.get_vision_tower().image_processor
         print("Done.")
 
     def unload_model(self):
