@@ -64,7 +64,6 @@ class CLIPVisionTower(nn.Module):
         """
         image_forward_out = self.vision_tower(images.to(device=self._device), output_hidden_states=True)
         image_features = self.feature_select(image_forward_out).to(images.dtype)
-
         return image_features
 
     @property
