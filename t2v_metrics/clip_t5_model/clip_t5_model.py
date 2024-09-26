@@ -1,12 +1,13 @@
 import gc
 
 import torch
+import deepspeed
 import torch.nn.functional as F
 from transformers import AutoTokenizer
 from torchvision import transforms
 
 from t2v_metrics.visual_model import BaseVisualModel
-from .language_model.clip_t5 import CLIPT5ForConditionalGeneration
+from .language_model.clip_t5 import CLIPT5ForConditionalGeneration, CLIPT5Config
 
 
 CLIP_T5_MODELS = {
@@ -152,7 +153,7 @@ class CLIPT5Model(BaseVisualModel):
         }
 
         # inferencing model
-        outputs = self._model(**model_input_kwargs)
+        outputs = self._model.forward(**model_input_kwargs)
 
         # unpacking values
         logits = outputs.logits
@@ -241,12 +242,12 @@ class CLIPT5Model(BaseVisualModel):
 
         self._tokenizer = AutoTokenizer.from_pretrained(CLIP_T5_MODELS[model_name]["tokenizer"]["path"], **tokenizer_dict)
         self._model = CLIPT5ForConditionalGeneration.from_pretrained(CLIP_T5_MODELS[model_name]["model"]["path"])
+        self.init_deepspeed()
 
         self._model.to(self._device, dtype=torch.bfloat16)
         self._model.requires_grad_(False)
         self._model.eval()
 
-        # self._processor = self._model.get_vision_tower().image_processor
         print("Done.")
 
     def unload_model(self):
@@ -261,3 +262,29 @@ class CLIPT5Model(BaseVisualModel):
 
         gc.collect()
         torch.cuda.empty_cache()
+
+    def init_deepspeed(self):
+        """
+        Initialize DeepSpeed and the distributed backend if not already done.
+        """
+        import os
+        from transformers.models.t5.modeling_t5 import T5Block
+
+        # Set default RANK and WORLD_SIZE for single-GPU setups
+        rank = int(os.getenv('RANK', '0'))  # Default to rank 0
+        world_size = int(os.getenv('WORLD_SIZE', '1'))  # Default to 1 process
+        master_addr = os.getenv('MASTER_ADDR', '127.0.0.1')  # Default to localhost
+        master_port = os.getenv('MASTER_PORT', '29500')  # Default port
+
+        # Initialize process group if distributed mode is enabled
+        torch.distributed.init_process_group(
+                    backend='nccl',
+                    init_method='tcp://{}:{}'.format(master_addr, master_port),
+                    rank=rank,
+                    world_size=world_size
+                )
+
+        self._model = deepspeed.init_inference(self._model,
+                                               tensor_parallel={"tp_size": world_size},
+                                               dtype=torch.bfloat16)
+        print(f"DeepSpeed initialized with {world_size} processes")
