@@ -235,17 +235,12 @@ class CLIPT5Model(BaseVisualModel):
         """
         print("Loading model ...")
         model_max_length = CLIP_T5_MODELS[model_name]['tokenizer']['model_max_length']
-        # image_aspect_ratio = CLIP_T5_MODELS[self.model_name]['model']['image_aspect_ratio']
 
         tokenizer_dict = {}
         tokenizer_dict['model_max_length'] = model_max_length
 
         self._tokenizer = AutoTokenizer.from_pretrained(CLIP_T5_MODELS[model_name]["tokenizer"]["path"], **tokenizer_dict)
         self._model = CLIPT5ForConditionalGeneration.from_pretrained(CLIP_T5_MODELS[model_name]["model"]["path"])
-        # self._model.resize_token_embeddings(len(self._tokenizer))  # might be redundant
-
-        # if not self._model.get_vision_tower().is_loaded:
-        #     self._model.get_vision_tower().load_model()
 
         self._model.to(self._device, dtype=torch.bfloat16)
         self._model.requires_grad_(False)
