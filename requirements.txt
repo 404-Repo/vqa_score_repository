@@ -10,5 +10,4 @@ opencv-python==4.10.0.84
 einops==0.8.0
 pandas==2.2.2
 torch==2.4.1
-vllm==0.6.1.post2
-ctranslate2==4.4.0
+deepspeed==0.15.1

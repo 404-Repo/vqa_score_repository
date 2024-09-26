@@ -38,7 +38,7 @@ dependencies = [
     "scikit-learn>=1.5.2",
     "fire>=0.6.0",
     "tiktoken>=0.7.0",
-    "ctranslate2>=4.4.0"
+    "deepspeed>=0.15.1"
 ]
 
 [tool.setuptools]
