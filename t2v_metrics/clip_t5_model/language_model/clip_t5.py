@@ -13,14 +13,10 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-import os
 from typing import List, Optional, Tuple, Union
 from dataclasses import dataclass, field
 
 import torch
-import torch.distributed as dist
-import deepspeed
-
 from transformers import AutoConfig, AutoModelForSeq2SeqLM
 from transformers.modeling_outputs import Seq2SeqLMOutput
 from transformers import T5Config, T5ForConditionalGeneration
@@ -54,30 +50,6 @@ class CLIPT5ForConditionalGeneration(T5ForConditionalGeneration):
         if hasattr(config, "mm_vision_tower"):
             self.vision_tower = build_vision_tower(config)
             self.mm_projector = build_vision_projector(config)
-
-        self.init_deepspeed()
-
-    def init_deepspeed(self):
-        """
-        Initialize DeepSpeed and the distributed backend if not already done.
-        """
-        # Set default RANK and WORLD_SIZE for single-GPU setups
-        rank = int(os.getenv('RANK', '0'))  # Default to rank 0
-        world_size = int(os.getenv('WORLD_SIZE', '1'))  # Default to 1 process
-        master_addr = os.getenv('MASTER_ADDR', '127.0.0.1')  # Default to localhost
-        master_port = os.getenv('MASTER_PORT', '29500')  # Default port
-
-        if dist.is_available() and not dist.is_initialized():
-            # Initialize process group if distributed mode is enabled
-            dist.init_process_group(
-                backend='nccl',
-                init_method='tcp://{}:{}'.format(master_addr, master_port),
-                rank=rank,
-                world_size=world_size
-            )
-
-        self = deepspeed.init_inference(self, mp_size=world_size)
-        print(f"DeepSpeed initialized with {world_size} processes")
 
     def get_vision_tower(self):
         """"""
