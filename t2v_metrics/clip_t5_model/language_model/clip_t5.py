@@ -19,7 +19,10 @@ from dataclasses import dataclass, field
 import torch
 from transformers import AutoConfig, AutoModelForSeq2SeqLM
 from transformers.modeling_outputs import Seq2SeqLMOutput
-from transformers import T5Config, T5ForConditionalGeneration
+# from transformers import T5Config, T5ForConditionalGeneration
+
+from turbot5 import T5ForConditionalGeneration
+from turbot5 import T5Config
 
 from ..multimodal_encoder.builder import build_vision_tower
 from ..multimodal_projector.builder import build_vision_projector
