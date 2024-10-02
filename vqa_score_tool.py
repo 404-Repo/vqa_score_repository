@@ -1,7 +1,6 @@
 from time import time
 from pathlib import Path
 
-import torch
 import numpy as np
 import t2v_metrics
 from PIL import Image
@@ -11,13 +10,11 @@ if __name__ == '__main__':
     image_path = "./images/image.png"
     prompt1 = "two dogs running in the forest"
 
-    image = np.array(Image.open(image_path))
-    torch_image = torch.tensor(image)
-
+    image = Image.open(image_path)
     model = t2v_metrics.VQAScore(model="clip-flant5-xl")
 
     t1 = time()
-    score1 = model([torch_image], [prompt1])
+    score1 = model([image], [prompt1])
     t2 = time()
 
     print(f" It took: {t2 - t1} s")
@@ -30,14 +27,14 @@ if __name__ == '__main__':
     images_files = list(image_folder.rglob("*.png"))
     images = []
     for img_file in images_files:
-        image = torch.tensor(np.array(Image.open(img_file)))
+        image = Image.open(img_file)
         images.append(image)
 
     t1 = time()
     score2 = model(images, [prompt2])
     t2 = time()
 
-    score2 = np.exp(np.log(score2).mean())
+    score2 = np.exp(np.log(score2.detach().cpu().numpy()).mean())
 
     print(f" It took: {t2 - t1} s")
     print(f" Input prompt: {prompt2}")
