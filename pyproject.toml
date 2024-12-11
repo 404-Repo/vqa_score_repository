@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "t2v_metrics"
-version = "1.2"
+version = "1.0.0"
 description = "Evaluating Text-to-Visual Generation with Image-to-Text Generation."
 authors = [
     {name="Zhiqiu Lin", email="zl279@cornell.edu"},
@@ -17,36 +17,33 @@ classifiers = [
 ]
 dependencies = [
     "ftfy>=6.1.1",
-    "tqdm>=4.64.1",
+    "tqdm>=4.66.5",
     "gdown>=4.7.1",
     "huggingface-hub>=0.19.4",
-    "matplotlib>=3.6.2",
     "numpy>=1.26.2",
-    "open-clip-torch>=2.23.0",
-    "openai>=1.29.0",
+    "open-clip-torch>=2.26.1",
     "opencv-python>=4.6.0.66",
     "opencv-python-headless",
     "pandas>=2.1.4",
     "scipy>=1.11.4",
+    "torch>=2.4.1",
     "sentencepiece>=0.1.99",
-    "transformers==4.36.1",
+    "transformers>=4.44.2",
     "datasets>=2.15.0",
-    "tokenizers",
-    "omegaconf",
-    "iopath",
-    "fairscale",
+    "tokenizers>=0.19.1",
+    "omegaconf==2.3.0",
+    "iopath>=0.1.10",
+    "fairscale>=0.4.13",
     # for clipscore
-    "scikit-learn",
-    "pycocoevalcap",
-    "image-reward",
-    "hpsv2",
-    "fire==0.4.0",
+    "scikit-learn>=1.5.2",
+    "fire>=0.6.0",
     "tiktoken>=0.7.0",
+    "turbot5>=0.0.1"
 ]
 
 [tool.setuptools]
 include-package-data = true
-packages = ["t2v_metrics", "t2v_metrics.models"]
+packages = ["t2v_metrics"]
 
 [tool.setuptools.package-data]
 't2v_metrics' = ['**/*.json', '**/*.yaml', '**/*.py']
