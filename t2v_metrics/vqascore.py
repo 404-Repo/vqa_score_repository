@@ -1,23 +1,61 @@
-from typing import List
+import copy
+from typing import TypedDict
 
-from .score import Score
+import torch
+import torch.nn as nn
 
-from .constants import HF_CACHE_DIR
+from .clip_t5_model.clip_t5_model import CLIPT5Model
 
-from .models.vqascore_models import list_all_vqascore_models, get_vqascore_model
 
-class VQAScore(Score):
-    def prepare_scoremodel(self,
-                           model='clip-flant5-xxl',
-                           device='cuda',
-                           cache_dir=HF_CACHE_DIR,
-                           **kwargs):
-        return get_vqascore_model(
-            model,
-            device=device,
-            cache_dir=cache_dir,
-            **kwargs
-        )
-            
-    def list_all_models(self) -> List[str]:
-        return list_all_vqascore_models()
+class ImageTextDict(TypedDict):
+    images: list[str]
+    texts: list[str]
+
+
+class VQAScore(nn.Module):
+    def __init__(self, device="cuda:0"):
+        """"""
+        super().__init__()
+        self._device = device
+        self._model = CLIPT5Model(device)
+
+    def forward(self, images: list[torch.Tensor], texts: list[str], **kwargs):
+        """
+
+        Parameters
+        ----------
+        images
+        texts
+        kwargs
+
+        Returns
+        -------
+
+        """
+
+        if len(images) > len(texts):
+            texts = [copy.deepcopy(texts[0]) for i in range(len(images))]
+        else:
+            images = [copy.deepcopy(images[0]) for i in range(len(texts))]
+
+        scores = self._model.forward(images, texts, **kwargs)
+        return scores
+
+    def preload_model(self, model_name: str):
+        """
+
+        Parameters
+        ----------
+        model_name
+
+        Returns
+        -------
+
+        """
+        self._model.preload_model(model_name)
+
+    def unload_model(self):
+        """"""
+        self._model.unload_model()
+
+
