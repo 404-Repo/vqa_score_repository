@@ -31,8 +31,7 @@ pip install git+https://github.com/404-Repo/vqa_score_repository.git@v1.0.0
 Example of how to inference the model can be found in **vqa_score_tool.py**.
 
 ### Notes on GPU and cache
-- **GPU usage**: By default, this code uses the first cuda device on your machine. We recommend 40GB GPUs for the largest VQAScore models such as `clip-flant5-xxl` and `llava-v1.5-13b`. If you have limited GPU memory, consider smaller models such as `clip-flant5-xl` and `llava-v1.5-7b`.
-- **Cache directory**: You can change the cache folder which saves all model checkpoints (default is `./hf_cache/`) by updating `HF_CACHE_DIR` in [t2v_metrics/constants.py](t2v_metrics/constants.py).
+**GPU usage**: By default, this code uses the first cuda device on your machine. We recommend 40GB GPUs for the largest VQAScore models such as `clip-flant5-xxl` and `llava-v1.5-13b`. If you have limited GPU memory, consider smaller models such as `clip-flant5-xl` and `llava-v1.5-7b`.
 
 
 ### Customizing the question and answer template (for VQAScore)
