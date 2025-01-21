@@ -3,6 +3,7 @@ import os
 import t2v_metrics
 from pathlib import Path
 import re
+from PIL import Image
 
 
 def get_all_image_files(folder_path: str) -> list[Path]:
@@ -45,17 +46,20 @@ def load_prompts(folder_path: Path) -> list[str]:
 
 
 def main():
-    img_folder = "./test_data"
-
-    prompts = load_prompts(img_folder)
+    img_folder = Path("./test_data/previews")
 
     cache_dir = t2v_metrics.constants.HF_CACHE_DIR
     score_func = t2v_metrics.get_score_model(model="llava-v1.6-13b", device="cuda", cache_dir=cache_dir)
 
     imgs_paths = get_all_image_files(img_folder)
-    for img_file, prompt in zip(imgs_paths, prompts):
-        score = score_func.forward([imgs_file], [prompt])
-        print("Scores: ", score)
+    for img_file in imgs_paths:
+        print("file: ", img_file)
+        print("prompt: ", re.sub(r"\..*", "", filename).replace("_", " "))
+
+        pil_image = Image.open(img_file.as_posix())
+        prompt = re.sub(r"\..*", "", filename).replace("_", " ")
+        score = score_func.forward([pil_image], [prompt])
+        print("Scores: ", score, "\n")
 
 
 if __name__ == '__main__':
