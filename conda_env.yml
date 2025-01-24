@@ -1,0 +1,15 @@
+name: three-gen-vqa
+channels:
+  - defaults
+  - conda-forge
+  - nvidia
+
+dependencies:
+  - python=3.11
+  - pip
+  - cuda-toolkit=12.1
+  - cudnn=8.9
+  - gcc=12.1
+  - gxx=12.1
+  - pip:
+      - -r requirements.txt
