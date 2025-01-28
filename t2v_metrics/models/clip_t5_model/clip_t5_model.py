@@ -7,7 +7,7 @@ from transformers import AutoTokenizer
 from torchvision import transforms
 
 from t2v_metrics.visual_model import BaseVisualModel
-from .language_model.clip_t5 import CLIPT5ForConditionalGeneration, CLIPT5Config
+from t2v_metrics.models.clip_t5_model.language_model.clip_t5 import CLIPT5ForConditionalGeneration, CLIPT5Config
 
 
 CLIP_T5_MODELS = {
@@ -45,6 +45,7 @@ class CLIPT5Model(BaseVisualModel):
         ----------
         device: string that sets up torch device
         """
+        super(CLIPT5Model, self).__init__()
 
         self._device = device
         self._system_message = ("A chat between a curious user and an artificial intelligence assistant. "
@@ -117,6 +118,7 @@ class CLIPT5Model(BaseVisualModel):
         questions = [self._format_question(question) for question in questions]
         answers = [self._format_answer(answer) for answer in answers]
 
+        # getting input_ids and labels
         input_ids = [self._tokenize_image_token(qs, self._image_token_index, return_tensors='pt') for qs in questions]
         labels = [self._tokenize_image_token(ans, self._image_token_index, return_tensors='pt') for ans in answers]
 
@@ -231,13 +233,14 @@ class CLIPT5Model(BaseVisualModel):
         """
         return [ele for sublist in zip(X, [sep]*len(X)) for ele in sublist][:-1]
 
-    def preload_model(self, model_name: str):
+    def preload_model(self, model_name: str, torch_type: torch.dtype | None = None):
         """
         Function for preloading model
 
         Parameters
         ----------
         model_name: the name of the model that will be loaded: clip-flant5-xxl (~11B) or clip-flant5-xl (~3B)
+        torch_type:
         """
         print("Loading model ...")
         model_max_length = CLIP_T5_MODELS[model_name]['tokenizer']['model_max_length']
