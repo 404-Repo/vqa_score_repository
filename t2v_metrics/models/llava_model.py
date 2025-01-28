@@ -9,10 +9,10 @@ from t2v_metrics.visual_model import BaseVisualModel
 LLAVA_MODELS = {
     'llava-v1.5-13b': {
         'tokenizer' : {
-            'path': 'liuhaotian/llava-v1.5-13b',
+            'path': 'llava-hf/llava-1.5-13b-hf',
         },
         'model': {
-            'path': 'liuhaotian/llava-v1.5-13b',
+            'path': 'llava-hf/llava-1.5-13b-hf',
             'conversation': 'chat',
             'image_aspect_ratio': 'pad',
         },
