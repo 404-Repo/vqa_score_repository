@@ -18,3 +18,5 @@ source "${CONDA_BASE}/etc/profile.d/conda.sh"
 conda env create -f conda_env.yml
 conda activate three-gen-vqa
 conda info --env
+
+pip install flash-attn==2.7.3
