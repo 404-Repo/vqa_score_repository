@@ -19,10 +19,10 @@ LLAVA_MODELS = {
     },
     'llava-v1.5-7b': {
         'tokenizer' : {
-            'path': 'liuhaotian/llava-v1.5-7b',
+            'path': 'llava-hf/llava-1.5-7b-hf',
         },
         'model': {
-            'path': 'liuhaotian/llava-v1.5-7b',
+            'path': 'llava-hf/llava-1.5-7b-hf',
             'conversation': 'chat',
             'image_aspect_ratio': 'pad',
         },
@@ -43,7 +43,7 @@ class LLaVAModel(BaseVisualModel):
 
         self._context_len = context_len
         self._padding = -100
-        self._ignore_ind = -200
+        self._ignore_ind = -100
 
     def preload_model(self, model_name: str, torch_type: torch.dtype | None = None):
         """Load the model, tokenizer, image transform
@@ -82,27 +82,6 @@ class LLaVAModel(BaseVisualModel):
             raise NotImplementedError()
         return answer
 
-    def tokenizer_image_token(self, prompt, tokenizer, image_token_index=-200, return_tensors=None):
-        prompt_chunks = [tokenizer(chunk).input_ids for chunk in prompt.split('<image>')]
-
-        def insert_separator(X, sep):
-            return [ele for sublist in zip(X, [sep] * len(X)) for ele in sublist][:-1]
-
-        input_ids = []
-        offset = 0
-        if len(prompt_chunks) > 0 and len(prompt_chunks[0]) > 0 and prompt_chunks[0][0] == tokenizer.bos_token_id:
-            offset = 1
-            input_ids.append(prompt_chunks[0][0])
-
-        for x in insert_separator(prompt_chunks, [image_token_index] * (offset + 1)):
-            input_ids.extend(x[offset:])
-
-        if return_tensors is not None:
-            if return_tensors == 'pt':
-                return torch.tensor(input_ids, dtype=torch.long)
-            raise ValueError(f'Unsupported tensor type: {return_tensors}')
-        return input_ids
-
     @torch.no_grad()
     @torch.autocast(device_type='cuda', dtype=torch.bfloat16)
     def forward(
@@ -118,64 +97,43 @@ class LLaVAModel(BaseVisualModel):
         # Turn "a photo of a dog" into
         # Q: "Does this figure show "a photo of a dog"? Please answer yes or no."
         # A: "Yes"
-        questions = [question_template.format(text) for text in texts]
-        answers = [answer_template.format(text) for text in texts]
+        questions = [self._question_template.format(text) for text in texts]
+        answers = [self._answer_template.format(text) for text in texts]
         
         # Formatting for LLaVA-1.5 desired input including system message and image tokens
         questions = [self.format_question(question, conversation_style="chat") for question in questions]
         answers = [self.format_answer(answer, conversation_style="chat") for answer in answers]
-        
-        # images = self.load_images(images)
-        prompts = [qs + ans for qs, ans in zip(questions, answers)]
-        inputs = self._processor(images=images, text=prompts, return_tensors="pt", return_attention_mask=True)
 
-        input_ids = inputs["input_ids"]
-        labels = copy.deepcopy(input_ids)
-        for label, qs in zip(labels, questions):
-            tokenized_len = len(self.tokenizer_image_token(qs, self._tokenizer))
-            if qs[-1] == " ":
-                tokenized_len -= 1 # because white space
-            label[:tokenized_len] = self._ignore_ind
-    
-        input_ids = torch.nn.utils.rnn.pad_sequence(
-            input_ids,
-            batch_first=True,
-            padding_value=self._tokenizer.pad_token_id)
-        labels = torch.nn.utils.rnn.pad_sequence(labels,
-                                                batch_first=True,
-                                                padding_value=self._padding)
-        input_ids = input_ids[:, :self._tokenizer.model_max_length]
-        labels = labels[:, :self._tokenizer.model_max_length]
-            
-        # attention_mask = input_ids.ne(self._tokenizer.pad_token_id)
-        # input_ids, attention_mask, labels = input_ids.to(self._device), attention_mask.to(self._device), labels.to(self._device)
-        # input_ids, attention_mask, past_key_values, inputs_embeds, labels = self._model.prepare_inputs_labels_for_multimodal(
-        #     input_ids,
-        #     attention_mask,
-        #     None,
-        #     labels,
-        #     images
-        # )
+        inputs = self._processor(images=images, text=questions, tokenizer=self._tokenizer, return_tensors="pt", return_attention_mask=True)
+        question_len = len(inputs['input_ids'][0])
+
+        tokens_to_append = torch.tensor(self._tokenizer.encode(answers[0]))[1:]
+
+        inputs["input_ids"] = torch.hstack([inputs["input_ids"].squeeze(0), tokens_to_append]).unsqueeze(0)
+        inputs["attention_mask"] = torch.hstack([inputs["attention_mask"].squeeze(0), torch.tensor([1]*len(tokens_to_append))]).unsqueeze(0)
+
+        labels = copy.deepcopy(inputs["input_ids"])
+        labels[:, :question_len] = self._ignore_ind
         
         # assert input_ids is None, "input_ids should be None for LLaVA-1.5"
         # assert past_key_values is None, "past_key_values should be None for LLaVA-1.5"
         model_input_kwargs = {
-            'input_ids': input_ids,
+            'input_ids': inputs["input_ids"].to(self._device),
             'attention_mask': inputs["attention_mask"].to(self._device),
             'pixel_values': inputs["pixel_values"].to(self._device),
+            'labels': labels.to(self._device),
             'inputs_embeds': None,
             'use_cache': None,
             'output_attentions': None,
             'output_hidden_states': None,
-            'return_dict': False,
+            'return_dict': True,
         }
         
         outputs = self._model(
             **model_input_kwargs
         )
 
-        hidden_states = outputs[0]
-        logits = self._model.lm_head(hidden_states)
+        logits = outputs["logits"]
 
         # Shift so that tokens < n predict n
         shift_logits = logits[..., :-1, :].contiguous()
@@ -186,4 +144,5 @@ class LLaVAModel(BaseVisualModel):
         lm_prob = torch.zeros(shift_logits.shape[0])
         for k in range(lm_prob.shape[0]):
             lm_prob[k] = (-loss_fct(shift_logits[k], shift_labels[k])).exp()
+
         return lm_prob
