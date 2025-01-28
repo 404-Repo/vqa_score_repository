@@ -13,4 +13,10 @@ opencv-python-headless
 openai
 einops
 pandas
+omegaconf
+iopath
+fairscale
+tiktoken
+google
+protobuf
 # salesforce-lavis
