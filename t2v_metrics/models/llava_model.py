@@ -42,7 +42,6 @@ class LLaVAModel(BaseVisualModel):
         self._tokenizer = None
 
         self._context_len = context_len
-        self._padding = -100
         self._ignore_ind = -100
 
     def preload_model(self, model_name: str, torch_type: torch.dtype | None = None):
