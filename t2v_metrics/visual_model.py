@@ -4,14 +4,18 @@ import torch
 
 
 class BaseVisualModel(ABC):
+    @abstractmethod
+    def __init__(self):
+        self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        torch.set_default_device(self._device)
 
     @abstractmethod
     @torch.no_grad()
     @torch.autocast(device_type='cuda', dtype=torch.bfloat16)
     def forward(self, images: list[torch.Tensor] | torch.Tensor,
                 texts: list[str] | str,
-                question_template: str,
-                answer_template: str) -> torch.Tensor:
+                question_template: str = "",
+                answer_template: str = "") -> torch.Tensor:
         """
 
         Parameters
@@ -28,12 +32,13 @@ class BaseVisualModel(ABC):
         pass
 
     @abstractmethod
-    def preload_model(self, model_name: str):
+    def preload_model(self, model_name: str, torch_type: torch.dtype | None = None):
         """
 
         Parameters
         ----------
         model_name
+        torch_type
 
         Returns
         -------
@@ -44,5 +49,33 @@ class BaseVisualModel(ABC):
     @abstractmethod
     def unload_model(self):
         """"""
+        pass
+
+    @abstractmethod
+    def format_question(self, question: str):
+        """
+
+        Parameters
+        ----------
+        question
+
+        Returns
+        -------
+
+        """
+        pass
+
+    @abstractmethod
+    def format_answer(self, answer: str):
+        """
+
+        Parameters
+        ----------
+        answer
+
+        Returns
+        -------
+
+        """
         pass
 
