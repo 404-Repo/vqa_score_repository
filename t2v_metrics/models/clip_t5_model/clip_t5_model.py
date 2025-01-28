@@ -39,7 +39,7 @@ CLIP_T5_MODELS = {
 
 
 class CLIPT5Model(BaseVisualModel):
-    def __init__(self, device: str = "cuda"):
+    def __init__(self, context_len: int = 2048):
         """
         Parameters
         ----------
@@ -47,7 +47,6 @@ class CLIPT5Model(BaseVisualModel):
         """
         super(CLIPT5Model, self).__init__()
 
-        self._device = device
         self._system_message = ("A chat between a curious user and an artificial intelligence assistant. "
                                 "The assistant gives helpful, detailed, and polite answers to the user's questions.")
         self._question_template = 'Does this figure show "{}"? Please answer yes or no.'
@@ -59,7 +58,7 @@ class CLIPT5Model(BaseVisualModel):
         self._model = None
         self._tokenizer = None
 
-        self._context_len = 2048
+        self._context_len = context_len
         self._padding = -100
 
     def preprocess_inputs(self, images: list[torch.Tensor]) -> tuple[torch.Tensor]:
