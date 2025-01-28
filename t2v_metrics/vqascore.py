@@ -63,9 +63,6 @@ class VQAScore(nn.Module):
         elif model_name == "llava-v1.5-7b" or model_name == "llava-v1.5-13b":
             self._model = LLaVAModel()
             self._model.preload_model(model_name)
-        elif model_name == "cogvlm-17b":
-            self._model = CogVLMModel()
-            self._model.preload_model(model_name)
 
 
     def unload_model(self):
