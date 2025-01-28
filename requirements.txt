@@ -11,3 +11,4 @@ einops==0.8.0
 pandas==2.2.3
 torch==2.5.1
 turbot5==0.0.1
+flash-attn==2.7.3
