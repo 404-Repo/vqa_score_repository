@@ -7,7 +7,6 @@ import torch.nn as nn
 from t2v_metrics.models.clip_t5_model.clip_t5_model import CLIPT5Model
 from t2v_metrics.models.smolvlm_model import SmolVLMModel
 from t2v_metrics.models.llava_model import LLaVAModel
-from t2v_metrics.models.cogvlm_model import CogVLMModel
 
 
 class ImageTextDict(TypedDict):
