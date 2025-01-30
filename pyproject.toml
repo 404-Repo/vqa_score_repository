@@ -15,31 +15,34 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: Apache Software License",
 ]
-dependencies = [
-    "ftfy>=6.1.1",
-    "tqdm>=4.66.5",
-    "gdown>=4.7.1",
-    "huggingface-hub>=0.19.4",
-    "numpy>=1.26.2",
-    "open-clip-torch>=2.26.1",
-    "opencv-python>=4.6.0.66",
-    "opencv-python-headless",
-    "pandas>=2.1.4",
-    "scipy>=1.11.4",
-    "torch>=2.4.1",
-    "sentencepiece>=0.1.99",
-    "transformers>=4.44.2",
-    "datasets>=2.15.0",
-    "tokenizers>=0.19.1",
-    "omegaconf==2.3.0",
-    "iopath>=0.1.10",
-    "fairscale>=0.4.13",
-    # for clipscore
-    "scikit-learn>=1.5.2",
-    "fire>=0.6.0",
-    "tiktoken>=0.7.0",
-    "turbot5>=0.0.1"
-]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+#dependencies = [
+#    "ftfy>=6.1.1",
+#    "tqdm>=4.66.5",
+#    "gdown>=4.7.1",
+#    "huggingface-hub>=0.19.4",
+#    "numpy>=1.26.2",
+#    "open-clip-torch>=2.26.1",
+#    "opencv-python>=4.6.0.66",
+#    "opencv-python-headless",
+#    "pandas>=2.1.4",
+#    "scipy>=1.11.4",
+#    "torch>=2.4.1",
+#    "sentencepiece>=0.1.99",
+#    "transformers>=4.44.2",
+#    "datasets>=2.15.0",
+#    "tokenizers>=0.19.1",
+#    "omegaconf==2.3.0",
+#    "iopath>=0.1.10",
+#    "fairscale>=0.4.13",
+#    # for clipscore
+#    "scikit-learn>=1.5.2",
+#    "fire>=0.6.0",
+#    "tiktoken>=0.7.0",
+#    "turbot5>=0.0.1"
+#]
 
 [tool.setuptools]
 include-package-data = true
