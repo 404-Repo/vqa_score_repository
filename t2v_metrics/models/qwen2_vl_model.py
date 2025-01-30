@@ -14,8 +14,8 @@ QWEN2_VL_MODELS = {
     'qwen2-vl-2b': {
         'ckpt_path': 'Qwen/Qwen2-VL-2B-Instruct',
     },
-    'qwen2_5-vl-3b': {
-        'ckpt_path': 'Qwen/Qwen2.5-VL-3B-Instruct',
+    'qwen2-vl-7b-int8': {
+        'ckpt_path': 'Qwen/Qwen2-VL-7B-Instruct-GPTQ-Int8',
     },
 }
 
@@ -52,9 +52,14 @@ class QwenVLModel(BaseVisualModel):
         -------
 
         """
+        if model_name == "qwen2-vl-2b":
+            torch_type = torch.bfloat16
+        else:
+            torch_type = "auto"
+
         self._model = Qwen2VLForConditionalGeneration.from_pretrained(
             QWEN2_VL_MODELS[model_name]["ckpt_path"],
-            torch_dtype=torch.bfloat16,
+            torch_dtype=torch_type,
             _attn_implementation="flash_attention_2",
             device_map="auto"
         )
@@ -104,12 +109,11 @@ class QwenVLModel(BaseVisualModel):
         """
         messages = [{"role": "user",
                      "content": [{"type": "image"}] * num_imgs + [{"type": "text", "text": question}]},
-                    # {
-                    #     "role": "assistant",
-                    #     "content": [
-                    #         {"type": "text", "text": "Yes"},
-                    #     ]}
-                ]
+                    {
+                        "role": "assistant",
+                        "content": [
+                            {"type": "text", "text": "Yes"}]
+                    }]
         return messages
 
     @torch.no_grad()
@@ -141,6 +145,7 @@ class QwenVLModel(BaseVisualModel):
 
         messages = self.create_message_template(len(images), questions[0])
         prompt = self._processor.apply_chat_template(messages, add_generation_prompt=True)
+        print(prompt)
 
         inputs = self._processor(text=[prompt],
                                  images = images,
