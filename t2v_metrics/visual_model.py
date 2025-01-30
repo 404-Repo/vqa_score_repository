@@ -52,20 +52,6 @@ class BaseVisualModel(ABC):
         pass
 
     @abstractmethod
-    def format_question(self, question: str):
-        """
-
-        Parameters
-        ----------
-        question
-
-        Returns
-        -------
-
-        """
-        pass
-
-    @abstractmethod
     def format_answer(self, answer: str):
         """
 
