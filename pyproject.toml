@@ -17,7 +17,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "huggingface-hub==0.19.4",
+    "huggingface-hub>=0.21.0",
     "numpy==1.26.4",
     "open-clip-torch==2.30.0",
     "opencv-python==4.11.0.86",
