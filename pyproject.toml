@@ -16,7 +16,6 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
 ]
 
-[tool.setuptools.dynamic]
 dependencies = [
     "huggingface-hub==0.19.4",
     "numpy==1.26.4",
