@@ -52,7 +52,7 @@ class QwenVLModel(BaseVisualModel):
         -------
 
         """
-        self._model = AutoModelForVision2Seq.from_pretrained(
+        self._model = Qwen2VLForConditionalGeneration.from_pretrained(
             QWEN2_VL_MODELS[model_name]["ckpt_path"],
             torch_dtype=torch.bfloat16,
             _attn_implementation="flash_attention_2",
