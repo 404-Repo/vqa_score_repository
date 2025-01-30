@@ -57,7 +57,7 @@ class VQAScore(nn.Module):
             self._model = CLIPT5Model()
         elif model_name == "llava-v1.5-7b" or model_name == "llava-v1.5-13b":
             self._model = LLaVAModel()
-        elif model_name == "qwen2-vl-2b":
+        elif model_name == "qwen2-vl-2b" or model_name == "qwen2-vl-7b-int8":
             self._model = QwenVLModel()
 
         self._model.preload_model(model_name)
