@@ -145,7 +145,6 @@ class QwenVLModel(BaseVisualModel):
 
         messages = self.create_message_template(len(images), questions[0])
         prompt = self._processor.apply_chat_template(messages, add_generation_prompt=True)
-        print(prompt)
 
         inputs = self._processor(text=[prompt],
                                  images = images,
