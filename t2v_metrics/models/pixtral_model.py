@@ -139,7 +139,7 @@ class PixtralVisualModel(BaseVisualModel):
         answers = [self.format_answer(self._answer_template)] * len(texts)
 
         messages = self.create_message_template(len(images), questions[0])
-        prompt = self._processor.apply_chat_template(messages, add_generation_prompt=True, tokenize=False)
+        prompt = self._processor.apply_chat_template(messages, add_generation_prompt=True)
         print(prompt)
 
         # images = [Image.fromarray(img.detach().cpu().numpy()) for img in images]
