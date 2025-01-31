@@ -4,13 +4,13 @@ import gc
 import torch
 from transformers import (AutoTokenizer,
                           AutoProcessor,
-                          AutoModelForImageTextToText)
+                          LlavaForConditionalGeneration)
 from t2v_metrics.visual_model import BaseVisualModel
 
 
 PIXTRAL_MODELS = {
     'pixtral-12b-8bit': {
-        'ckpt_path': 'mlx-community/pixtral-12b-8bit',
+        'ckpt_path': 'DewEfresh/pixtral-12b-8bit',
     },
 }
 
@@ -47,7 +47,7 @@ class PixtralVisualModel(BaseVisualModel):
         -------
 
         """
-        self._model = AutoModelForImageTextToText.from_pretrained(
+        self._model = LlavaForConditionalGeneration.from_pretrained(
             PIXTRAL_MODELS[model_name]["ckpt_path"],
             torch_dtype="auto",
             device_map="auto"
