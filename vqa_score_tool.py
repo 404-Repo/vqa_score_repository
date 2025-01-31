@@ -9,15 +9,18 @@ from PIL import Image
 
 if __name__ == '__main__':
     image_path = "./images/image.png"
-    prompt1 = "two dogs chasing each other in the forest"
+    # image_path = "./images/circle.jpg"
+    prompt1 = "the brown dog chases the black dog around the tree"
+    # prompt1 = "a perfect circle with black border"
 
     image = np.array(Image.open(image_path))
     torch_image = torch.tensor(image)
 
     model = t2v_metrics.VQAScore()
-    # model.preload_model("smolvlm-1.7b-synth")
+    model.preload_model("pixtral-12b-8bit")
+    # model.preload_model("qwen2-vl-2b")
+    # model.preload_model("qwen2-vl-7b-int8")
     # model.preload_model("llava-v1.5-7b")
-    # model.preload_model("cogvlm-17b")
 
     t1 = time()
     score1 = model([torch_image], [prompt1])

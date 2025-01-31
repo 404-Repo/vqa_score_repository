@@ -4,9 +4,10 @@ from typing import TypedDict
 import torch
 import torch.nn as nn
 
-from t2v_metrics.models.clip_t5_model.clip_t5_model import CLIPT5Model
-from t2v_metrics.models.qwen2_vl_model import QwenVLModel
-from t2v_metrics.models.llava_model import LLaVAModel
+from t2v_metrics.models.clip_t5_model.clip_t5_model import CLIPT5Model, CLIP_T5_MODELS
+from t2v_metrics.models.qwen2_vl_model import QwenVLModel, QWEN2_VL_MODELS
+from t2v_metrics.models.llava_model import LLaVAModel, LLAVA_MODELS
+from t2v_metrics.models.pixtral_model import PixtralVisualModel, PIXTRAL_MODELS
 
 
 class ImageTextDict(TypedDict):
@@ -53,12 +54,14 @@ class VQAScore(nn.Module):
         -------
 
         """
-        if model_name == "clip-flant5-xxl" or model_name == "clip-flant5-xl":
+        if model_name in CLIP_T5_MODELS.keys():
             self._model = CLIPT5Model()
-        elif model_name == "llava-v1.5-7b" or model_name == "llava-v1.5-13b":
+        elif model_name in LLAVA_MODELS.keys():
             self._model = LLaVAModel()
-        elif model_name == "qwen2-vl-2b" or model_name == "qwen2-vl-7b-int8":
+        elif model_name in QWEN2_VL_MODELS.keys():
             self._model = QwenVLModel()
+        elif model_name in PIXTRAL_MODELS.keys():
+            self._model  = PixtralVisualModel()
 
         self._model.preload_model(model_name)
 
