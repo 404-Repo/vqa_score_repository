@@ -7,6 +7,7 @@ import torch.nn as nn
 from t2v_metrics.models.clip_t5_model.clip_t5_model import CLIPT5Model, CLIP_T5_MODELS
 from t2v_metrics.models.qwen2_vl_model import QwenVLModel, QWEN2_VL_MODELS
 from t2v_metrics.models.llava_model import LLaVAModel, LLAVA_MODELS
+from t2v_metrics.models.llava_next_model import LLaVANextModel, LLAVA_NEXT_MODELS
 
 
 class ImageTextDict(TypedDict):
@@ -59,6 +60,8 @@ class VQAScore(nn.Module):
             self._model = LLaVAModel()
         elif model_name in QWEN2_VL_MODELS.keys():
             self._model = QwenVLModel()
+        elif model_name in LLAVA_NEXT_MODELS.keys():
+            self._model = LLaVANextModel()
         else:
             ValueError(f"Passed model name <{model_name}> is not implemented or recognised.")
 
