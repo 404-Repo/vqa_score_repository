@@ -62,6 +62,8 @@ class VQAScore(nn.Module):
             self._model = QwenVLModel()
         elif model_name in PIXTRAL_MODELS.keys():
             self._model  = PixtralVisualModel()
+        else:
+            ValueError(f"Passed model name <{model_name}> is not implemented or recognised.")
 
         self._model.preload_model(model_name)
 
