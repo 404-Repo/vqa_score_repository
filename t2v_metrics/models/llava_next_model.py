@@ -47,7 +47,7 @@ class LLaVANextModel(BaseVisualModel):
         gc.collect()
 
     def format_answer(eslf, answer):
-        answer = " " + answer + "<\s>"
+        answer = answer + "<\s>"
         return answer
 
     def create_message_template(self, num_imgs: int, question: str):
@@ -63,8 +63,13 @@ class LLaVANextModel(BaseVisualModel):
         -------
 
         """
+        content = [{"type": "text", "text": question}]
+        for i in range(num_imgs):
+            content.append({"type": "image"})
+
+
         messages = [{"role": "user",
-                     "content": [{"type": "image"}] * num_imgs + [{"type": "text", "text": question}]},
+                     "content": content}
                     # {
                     #     "role": "assistant",
                     #     "content": [
@@ -99,6 +104,7 @@ class LLaVANextModel(BaseVisualModel):
         inputs = self._processor(text=prompt,
                                  images=images,
                                  return_tensors="pt",
+                                 return_attention_mask=True
                                  )
         inputs = inputs.to(self._device)
 
