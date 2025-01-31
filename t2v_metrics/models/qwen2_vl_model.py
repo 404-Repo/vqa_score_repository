@@ -40,7 +40,7 @@ class QwenVLModel(BaseVisualModel):
         self._context_len = context_len
         self._padding = -100
 
-    def preload_model(self, model_name: str, torch_type: torch.dtype | None = None):
+    def preload_model(self, model_name: str, quant_type: dict = {}):
         """
 
         Parameters

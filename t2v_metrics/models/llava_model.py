@@ -44,7 +44,7 @@ class LLaVAModel(BaseVisualModel):
         self._context_len = context_len
         self._ignore_ind = -100
 
-    def preload_model(self, model_name: str, torch_type: torch.dtype | None = None):
+    def preload_model(self, model_name: str, quant_type: dict = {}):
         """Load the model, tokenizer, image transform
         """
         self._model = LlavaForConditionalGeneration.from_pretrained(LLAVA_MODELS[model_name]["model"]["path"], torch_dtype=torch.bfloat16)
