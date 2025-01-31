@@ -83,7 +83,7 @@ class PixtralVisualModel(BaseVisualModel):
         -------
 
         """
-        return "\n" + answer + "<|end|>"
+        return "\n" + answer + "</s>"
 
     def create_message_template(self, num_imgs: int, question: str):
         """
@@ -98,18 +98,11 @@ class PixtralVisualModel(BaseVisualModel):
         -------
 
         """
-        content = [{"type": "text", "content": question}]
+        img_tokens = ""
         for i in range(num_imgs):
-            content.append({"type": "image"})
+            img_tokens += "[IMG]"
 
-        messages = [{
-            "role": "user",
-            "content": content
-        },
-        {
-            "role": "assistant",
-            "content": [{"type": "text", "content": "Yes"}]
-        }]
+        messages = f"<s>[INST]{question}.\n{img_tokens}[/INST]"
         return messages
 
     @torch.no_grad()
@@ -138,36 +131,31 @@ class PixtralVisualModel(BaseVisualModel):
 
         questions = [self._question_template.format(text) for text in texts]
         answers = [self.format_answer(self._answer_template)] * len(texts)
+        prompt = self.create_message_template(len(images), questions[0])
 
-        messages = self.create_message_template(len(images), questions[0])
-        prompt = self._processor.apply_chat_template(messages, add_generation_prompt=True, tokenize=False)
-        print(prompt)
+        inputs = self._processor(text = prompt,
+                                 images = images,
+                                 return_tensors="pt",
+                                 )
+        inputs = inputs.to(self._device)#
 
-        # images = [Image.fromarray(img.detach().cpu().numpy()) for img in images]
-        #
-        # inputs = self._processor(text=prompt,
-        #                          images = images,
-        #                          return_tensors="pt",
-        #                          )
-        # inputs = inputs.to(self._device)#
-        #
-        # question_len = len(inputs['input_ids'][0])
-        #
-        # # inputs consists of combined data: imagery + textual that were tokenized and preprocessed during call to processor
-        # tokens_to_append = self._tokenizer.encode(answers[0], return_tensors="pt")
-        # tokens_to_append = tokens_to_append[:, 1:].to(self._device)
-        # inputs["input_ids"] = torch.hstack([inputs["input_ids"], tokens_to_append])
-        # inputs["attention_mask"] = torch.hstack([inputs["attention_mask"], torch.ones_like(tokens_to_append)])
-        #
-        # # setting image tokens to negative value, they will be ignored during inference#
-        # labels = copy.deepcopy(inputs["input_ids"]).to(self._device)
-        # labels[:, :question_len] = self._padding
-        #
-        # outputs = self._model(**inputs, labels=labels, return_dict=True)
-        #
-        # loss_fct = torch.nn.CrossEntropyLoss(reduction='mean')
-        # output_logits = outputs.logits[:, :-1, :].contiguous()
-        # output_labels = labels[:, 1:].contiguous()
-        #
-        # lm_prob = (-loss_fct(output_logits.view(-1, output_logits.size(-1)), output_labels.view(-1))).exp()
-        return 0 #lm_prob
+        question_len = len(inputs['input_ids'][0])
+
+        # inputs consists of combined data: imagery + textual that were tokenized and preprocessed during call to processor
+        tokens_to_append = self._tokenizer.encode(answers[0], return_tensors="pt")
+        tokens_to_append = tokens_to_append[:, 1:].to(self._device)
+        inputs["input_ids"] = torch.hstack([inputs["input_ids"], tokens_to_append])
+        inputs["attention_mask"] = torch.hstack([inputs["attention_mask"], torch.ones_like(tokens_to_append)])
+
+        # setting image tokens to negative value, they will be ignored during inference#
+        labels = copy.deepcopy(inputs["input_ids"]).to(self._device)
+        labels[:, :question_len] = self._padding
+
+        outputs = self._model(**inputs, labels=labels, return_dict=True)
+
+        loss_fct = torch.nn.CrossEntropyLoss(reduction='mean')
+        output_logits = outputs.logits[:, :-1, :].contiguous()
+        output_labels = labels[:, 1:].contiguous()
+
+        lm_prob = (-loss_fct(output_logits.view(-1, output_logits.size(-1)), output_labels.view(-1))).exp()
+        return lm_prob
