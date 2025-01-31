@@ -32,7 +32,7 @@ class BaseVisualModel(ABC):
         pass
 
     @abstractmethod
-    def preload_model(self, model_name: str, torch_type: torch.dtype | None = None):
+    def preload_model(self, model_name: str, quant_type: dict = {}):
         """
 
         Parameters
