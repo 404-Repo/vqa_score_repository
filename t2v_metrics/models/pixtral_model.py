@@ -2,9 +2,9 @@ import copy
 import gc
 
 import torch
-from transformers import (AutoTokenizer, Phi3ForCausalLM,
+from transformers import (AutoTokenizer,
                           AutoProcessor,
-                          LlavaForConditionalGeneration)
+                          AutoModelForImageTextToText)
 from t2v_metrics.visual_model import BaseVisualModel
 
 
