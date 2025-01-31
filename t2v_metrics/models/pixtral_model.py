@@ -98,17 +98,18 @@ class PixtralVisualModel(BaseVisualModel):
         -------
 
         """
-        image_placeholder = ""
+        content = [{"type": "text", "content": question}]
         for i in range(num_imgs):
-            image_placeholder += f"<|image_{i}|>\n"
+            content.append({"type": "image"})
 
-        messages = [{"role": "user",
-                     "content": [{"type": "text", "content": question}] + [{"type": "image"}] * num_imgs},
-                    {
-                        "role": "assistant",
-                        "content": [{"type": "text", "content": "Yes"}]
-                    }
-                    ]
+        messages = [{
+            "role": "user",
+            "content": content
+        },
+        {
+            "role": "assistant",
+            "content": [{"type": "text", "content": "Yes"}]
+        }]
         return messages
 
     @torch.no_grad()
@@ -139,7 +140,7 @@ class PixtralVisualModel(BaseVisualModel):
         answers = [self.format_answer(self._answer_template)] * len(texts)
 
         messages = self.create_message_template(len(images), questions[0])
-        prompt = self._processor.apply_chat_template(messages, add_generation_prompt=True)
+        prompt = self._processor.apply_chat_template(messages, add_generation_prompt=True, tokenize=False)
         print(prompt)
 
         # images = [Image.fromarray(img.detach().cpu().numpy()) for img in images]
