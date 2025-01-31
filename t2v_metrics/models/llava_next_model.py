@@ -104,6 +104,7 @@ class LLaVANextModel(BaseVisualModel):
         inputs = self._processor(text=prompt,
                                  images=images,
                                  return_tensors="pt",
+                                 padding=True,
                                  return_attention_mask=True
                                  )
         inputs = inputs.to(self._device)
