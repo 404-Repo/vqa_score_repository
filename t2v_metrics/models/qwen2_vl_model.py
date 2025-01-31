@@ -29,6 +29,8 @@ class QwenVLModel(BaseVisualModel):
         ----------
         device
         """
+        super(QwenVLModel, self).__init__()
+
         self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self._question_template = 'Does this figure show "{}"? Please answer yes or no.'
         self._answer_template = "Yes"
