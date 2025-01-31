@@ -38,7 +38,8 @@ dependencies = [
     "regex==2024.11.6",
     "ftfy==6.3.1",
     "gdown==5.2.0",
-    "optimum==1.24.0"
+    "optimum==1.24.0",
+    "protobuf==5.29.3"
 ]
 
 [tool.setuptools]
