@@ -4,7 +4,7 @@ import gc
 import torch
 from transformers import (AutoTokenizer,
                           AutoProcessor,
-                          LlavaForConditionalGeneration)
+                          AutoModelForImageTextToText)
 from t2v_metrics.visual_model import BaseVisualModel
 
 
@@ -47,7 +47,7 @@ class PixtralVisualModel(BaseVisualModel):
         -------
 
         """
-        self._model = LlavaForConditionalGeneration.from_pretrained(
+        self._model = AutoModelForImageTextToText.from_pretrained(
             PIXTRAL_MODELS[model_name]["ckpt_path"],
             torch_dtype="auto",
             device_map="auto"
