@@ -79,7 +79,7 @@ class LLaVANextModel(BaseVisualModel):
         return messages
 
     @torch.no_grad()
-    @torch.autocast(device_type='cuda', dtype=torch.bfloat16)
+    @torch.autocast(device_type='cuda', dtype=torch.float16)
     def forward(
             self,
             images: list[torch.Tensor] | torch.Tensor,
@@ -111,11 +111,16 @@ class LLaVANextModel(BaseVisualModel):
 
         question_len = len(inputs['input_ids'][0])
 
+        print(inputs)
+        print(inputs["input_ids"].shape)
+
         # inputs consists of combined data: imagery + textual that were tokenized and preprocessed during call to processor
         tokens_to_append = self._tokenizer.encode(answers[0], return_tensors="pt")
         tokens_to_append = tokens_to_append[:, 1:].to(self._device)
         inputs["input_ids"] = torch.hstack([inputs["input_ids"], tokens_to_append])
         inputs["attention_mask"] = torch.hstack([inputs["attention_mask"], torch.ones_like(tokens_to_append)])
+
+        print(inputs["input_ids"].shape)
 
         # setting image tokens to negative value, they will be ignored during inference#
         labels = copy.deepcopy(inputs["input_ids"]).to(self._device)
