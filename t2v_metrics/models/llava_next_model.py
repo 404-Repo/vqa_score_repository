@@ -47,7 +47,7 @@ class LLaVANextModel(BaseVisualModel):
         gc.collect()
 
     def format_answer(eslf, answer):
-        answer = answer + "</s>"
+        answer = answer + "<\s>"
         return answer
 
     def create_message_template(self, num_imgs: int, question: str):
@@ -65,11 +65,12 @@ class LLaVANextModel(BaseVisualModel):
         """
         messages = [{"role": "user",
                      "content": [{"type": "image"}] * num_imgs + [{"type": "text", "text": question}]},
-                    {
-                        "role": "assistant",
-                        "content": [
-                            {"type": "text", "text": "Yes"}]
-                    }]
+                    # {
+                    #     "role": "assistant",
+                    #     "content": [
+                    #         {"type": "text", "text": "Yes"}]
+                    # }]
+        ]
         return messages
 
     @torch.no_grad()
