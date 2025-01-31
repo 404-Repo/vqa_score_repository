@@ -2,7 +2,6 @@ import copy
 import gc
 
 import torch
-from PIL import Image
 from transformers import (AutoTokenizer, Phi3ForCausalLM,
                           AutoProcessor,
                           LlavaForConditionalGeneration)
