@@ -49,7 +49,6 @@ class PixtralVisualModel(BaseVisualModel):
         """
         self._model = LlavaForConditionalGeneration.from_pretrained(
             PIXTRAL_MODELS[model_name]["ckpt_path"],
-            torch_dtype="auto",
             device_map="auto"
         )
         self._model.to(self._device)
