@@ -65,6 +65,8 @@ class VQAScore(nn.Module):
         else:
             ValueError(f"Passed model name <{model_name}> is not implemented or recognised.")
 
+        assert self._model is not None
+
         self._model.preload_model(model_name)
 
     def unload_model(self):
