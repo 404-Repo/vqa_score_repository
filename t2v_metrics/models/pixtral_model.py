@@ -103,7 +103,7 @@ class PixtralVisualModel(BaseVisualModel):
             image_placeholder += f"<|image_{i}|>\n"
 
         messages = [{"role": "user",
-                     "content": [{"type": "image"}] * num_imgs + [{"type": "text", "content": question}]},
+                     "content": [{"type": "text", "content": question}] + [{"type": "image"}] * num_imgs},
                     {
                         "role": "assistant",
                         "content": [{"type": "text", "content": "Yes"}]
