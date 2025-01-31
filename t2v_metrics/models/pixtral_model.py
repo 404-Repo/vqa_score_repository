@@ -51,7 +51,6 @@ class PixtralVisualModel(BaseVisualModel):
             PIXTRAL_MODELS[model_name]["ckpt_path"],
             device_map="auto"
         )
-        self._model.to(self._device)
         self._model.eval()
 
         self._processor = AutoProcessor.from_pretrained(
