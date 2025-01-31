@@ -32,7 +32,7 @@ class LLaVANextModel(BaseVisualModel):
         """Load the model, tokenizer, image transform
         """
         self._model = LlavaNextForConditionalGeneration.from_pretrained(
-            LLAVA_NEXT_MODELS[model_name]["ckpt_path"], torch_dtype=torch.float16, use_flash_attention_2=True, load_in_4bit=True
+            LLAVA_NEXT_MODELS[model_name]["ckpt_path"], torch_dtype=torch.float16, use_flash_attention_2=True, #load_in_4bit=True
         )
         self._model.to(self._device)
         self._processor = LlavaNextProcessor.from_pretrained(LLAVA_NEXT_MODELS[model_name]["ckpt_path"])
