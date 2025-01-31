@@ -17,7 +17,7 @@ if __name__ == '__main__':
     torch_image = torch.tensor(image)
 
     model = t2v_metrics.VQAScore()
-    model.preload_model("llava-v1.6-7b-4bit")
+    model.preload_model("llava-v1.6-vicuna-7b")
     # model.preload_model("qwen2-vl-2b")
     # model.preload_model("qwen2-vl-7b-int8")
     # model.preload_model("llava-v1.5-7b")

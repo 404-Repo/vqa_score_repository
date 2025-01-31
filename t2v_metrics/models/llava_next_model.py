@@ -7,8 +7,8 @@ from t2v_metrics.visual_model import BaseVisualModel
 
 
 LLAVA_NEXT_MODELS = {
-    'llava-v1.6-7b-4bit': {
-        'ckpt_path': 'unsloth/llava-v1.6-mistral-7b-hf-bnb-4bit',
+    'llava-v1.6-vicuna-7b': {
+        'ckpt_path': 'llava-hf/llava-v1.6-vicuna-7b-hf',
     },
 }
 
@@ -28,13 +28,16 @@ class LLaVANextModel(BaseVisualModel):
         self._context_len = context_len
         self._ignore_ind = -100
 
-    def preload_model(self, model_name: str, torch_type: torch.dtype | None = None):
+    def preload_model(self, model_name: str, quant_type: dict = {}):
         """Load the model, tokenizer, image transform
         """
         self._model = LlavaNextForConditionalGeneration.from_pretrained(
-            LLAVA_NEXT_MODELS[model_name]["ckpt_path"], torch_dtype=torch.float16, use_flash_attention_2=True, #load_in_4bit=True
+            LLAVA_NEXT_MODELS[model_name]["ckpt_path"],
+            torch_dtype=torch.float16,
+            attn_implementation="flash_attention_2",
+            load_in_8bit=True,
+            device_map="auto"
         )
-        self._model.to(self._device)
         self._processor = LlavaNextProcessor.from_pretrained(LLAVA_NEXT_MODELS[model_name]["ckpt_path"])
         self._tokenizer = AutoTokenizer.from_pretrained(LLAVA_NEXT_MODELS[model_name]["ckpt_path"])
 
@@ -69,12 +72,11 @@ class LLaVANextModel(BaseVisualModel):
 
 
         messages = [{"role": "user",
-                     "content": content}
-                    # {
-                    #     "role": "assistant",
-                    #     "content": [
-                    #         {"type": "text", "text": "Yes"}]
-                    # }]
+                     "content": content},
+                    {
+                        "role": "assistant",
+                        "content": [{"type": "text", "text": "Yes"}]
+                    }
         ]
         return messages
 
@@ -99,28 +101,19 @@ class LLaVANextModel(BaseVisualModel):
 
         messages = self.create_message_template(len(images), questions[0])
         prompt = self._processor.apply_chat_template(messages, add_generation_prompt=True)
-        print(prompt)
 
         inputs = self._processor(text=prompt,
                                  images=images,
-                                 return_tensors="pt",
-                                 padding=True,
-                                 return_attention_mask=True
-                                 )
+                                 return_tensors="pt"                                 )
         inputs = inputs.to(self._device)
 
         question_len = len(inputs['input_ids'][0])
-
-        print(inputs)
-        print(inputs["input_ids"].shape)
 
         # inputs consists of combined data: imagery + textual that were tokenized and preprocessed during call to processor
         tokens_to_append = self._tokenizer.encode(answers[0], return_tensors="pt")
         tokens_to_append = tokens_to_append[:, 1:].to(self._device)
         inputs["input_ids"] = torch.hstack([inputs["input_ids"], tokens_to_append])
         inputs["attention_mask"] = torch.hstack([inputs["attention_mask"], torch.ones_like(tokens_to_append)])
-
-        print(inputs["input_ids"].shape)
 
         # setting image tokens to negative value, they will be ignored during inference#
         labels = copy.deepcopy(inputs["input_ids"]).to(self._device)
