@@ -30,7 +30,7 @@ class PixtralVisualModel(BaseVisualModel):
         self._image_token = ""
 
         self._processor = None
-        self._model: Phi3ForCausalLM = None
+        self._model = None
         self._tokenizer = None
         self._context_len = context_len
         self._padding = -100
@@ -47,7 +47,7 @@ class PixtralVisualModel(BaseVisualModel):
         -------
 
         """
-        self._model = LlavaForConditionalGeneration.from_pretrained(
+        self._model = AutoModelForImageTextToText.from_pretrained(
             PIXTRAL_MODELS[model_name]["ckpt_path"],
             torch_dtype=torch.bfloat16,
         )
