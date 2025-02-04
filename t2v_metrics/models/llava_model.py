@@ -58,7 +58,8 @@ class LLaVAModel(BaseVisualModel):
         """Load the model, tokenizer, image transform
         """
         self._model = LlavaForConditionalGeneration.from_pretrained(LLAVA_MODELS[model_name]["model"]["path"], torch_dtype=torch.bfloat16, **kwargs)
-        self._model.to(self._device)
+        if "load_in_8bit" not in kwargs.keys():
+            self._model.to(self._device)
         self._processor = LlavaProcessor.from_pretrained(LLAVA_MODELS[model_name]["model"]["path"])
         self._tokenizer = AutoTokenizer.from_pretrained(LLAVA_MODELS[model_name]["tokenizer"]["path"])
 

@@ -66,9 +66,10 @@ class QwenVLModel(BaseVisualModel):
             device_map="auto",
             **kwargs
         )
-        self._model.to(self._device)
-        self._model.eval()
+        if "load_in_8bit" not in kwargs.keys():
+            self._model.to(self._device)
 
+        self._model.eval()
         self._processor = AutoProcessor.from_pretrained(QWEN2_VL_MODELS[model_name]["ckpt_path"])
         self._tokenizer = AutoTokenizer.from_pretrained(QWEN2_VL_MODELS[model_name]["ckpt_path"])
 
