@@ -25,7 +25,7 @@ dependencies = [
     "scipy==1.15.1",
     "torch==2.5.1",
     "sentencepiece==0.2.0",
-    "transformers==4.48.1",
+    "transformers==4.48.2",
     "omegaconf==2.3.0",
     "iopath==0.1.10",
     "fairscale==0.4.13",
@@ -40,7 +40,8 @@ dependencies = [
     "gdown==5.2.0",
     "optimum==1.24.0",
     "protobuf==5.29.3",
-    "bitsandbytes==0.45.1"
+    "bitsandbytes==0.45.1",
+    "xformers==0.0.28.post3"
 ]
 
 [tool.setuptools]
