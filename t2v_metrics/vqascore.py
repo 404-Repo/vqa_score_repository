@@ -8,6 +8,7 @@ from t2v_metrics.models.clip_t5_model.clip_t5_model import CLIPT5Model, CLIP_T5_
 from t2v_metrics.models.qwen2_vl_model import QwenVLModel, QWEN2_VL_MODELS
 from t2v_metrics.models.llava_model import LLaVAModel, LLAVA_MODELS
 from t2v_metrics.models.llava_next_model import LLaVANextModel, LLAVA_NEXT_MODELS
+from t2v_metrics.models.deepseek_model import DeepSeekModel, DEEPSEEK_MODELS
 
 
 class ImageTextDict(TypedDict):
@@ -62,11 +63,12 @@ class VQAScore(nn.Module):
             self._model = QwenVLModel()
         elif model_name in LLAVA_NEXT_MODELS.keys():
             self._model = LLaVANextModel()
+        elif model_name in DEEPSEEK_MODELS.keys():
+            self._model = DeepSeekModel()
         else:
             ValueError(f"Passed model name <{model_name}> is not implemented or recognised.")
 
         assert self._model is not None
-
         self._model.preload_model(model_name)
 
     def unload_model(self):
