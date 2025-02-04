@@ -10,9 +10,6 @@ LLAVA_NEXT_MODELS = {
     'llava-v1.6-vicuna-7b': {
         'ckpt_path': 'llava-hf/llava-v1.6-vicuna-7b-hf',
     },
-    'llava-v1.6-vicuna-7b-4bit': {
-        'ckpt_path': 'PrunaAI/llava-v1.6-vicuna-7b-bnb-4bit'
-    }
 }
 
 
