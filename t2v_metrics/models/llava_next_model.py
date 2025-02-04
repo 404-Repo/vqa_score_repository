@@ -10,6 +10,9 @@ LLAVA_NEXT_MODELS = {
     'llava-v1.6-vicuna-7b': {
         'ckpt_path': 'llava-hf/llava-v1.6-vicuna-7b-hf',
     },
+    'llava-v1.6-vicuna-7b-4bit': {
+        'ckpt_path': 'PrunaAI/llava-v1.6-vicuna-7b-bnb-4bit'
+    }
 }
 
 
@@ -28,15 +31,15 @@ class LLaVANextModel(BaseVisualModel):
         self._context_len = context_len
         self._ignore_ind = -100
 
-    def preload_model(self, model_name: str, quant_type: dict = {}):
+    def preload_model(self, model_name: str, **kwargs):
         """Load the model, tokenizer, image transform
         """
         self._model = LlavaNextForConditionalGeneration.from_pretrained(
             LLAVA_NEXT_MODELS[model_name]["ckpt_path"],
             torch_dtype=torch.float16,
             attn_implementation="flash_attention_2",
-            load_in_8bit=True,
-            device_map="auto"
+            device_map="auto",
+            **kwargs
         )
         self._processor = LlavaNextProcessor.from_pretrained(LLAVA_NEXT_MODELS[model_name]["ckpt_path"])
         self._tokenizer = AutoTokenizer.from_pretrained(LLAVA_NEXT_MODELS[model_name]["ckpt_path"])

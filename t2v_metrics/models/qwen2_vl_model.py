@@ -42,7 +42,7 @@ class QwenVLModel(BaseVisualModel):
         self._context_len = context_len
         self._padding = -100
 
-    def preload_model(self, model_name: str, quant_type: dict = {}):
+    def preload_model(self, model_name: str, **kwargs):
         """
 
         Parameters
@@ -63,7 +63,8 @@ class QwenVLModel(BaseVisualModel):
             QWEN2_VL_MODELS[model_name]["ckpt_path"],
             torch_dtype=torch_type,
             _attn_implementation="flash_attention_2",
-            device_map="auto"
+            device_map="auto",
+            **kwargs
         )
         self._model.to(self._device)
         self._model.eval()

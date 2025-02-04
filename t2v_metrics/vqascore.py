@@ -44,7 +44,7 @@ class VQAScore(nn.Module):
         scores = self._model.forward(images, texts, **kwargs)
         return scores
 
-    def preload_model(self, model_name: str):
+    def preload_model(self, model_name: str, **kwargs):
         """
 
         Parameters
@@ -69,7 +69,7 @@ class VQAScore(nn.Module):
             ValueError(f"Passed model name <{model_name}> is not implemented or recognised.")
 
         assert self._model is not None
-        self._model.preload_model(model_name)
+        self._model.preload_model(model_name, **kwargs)
 
     def unload_model(self):
         """"""

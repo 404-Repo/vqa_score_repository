@@ -29,14 +29,15 @@ class DeepSeekModel(BaseVisualModel):
         self._context_len = context_len
         self._ignore_ind = -100
 
-    def preload_model(self, model_name: str, quant_type: dict = {}):
+    def preload_model(self, model_name: str, **kwargs):
         """Load the model, tokenizer, image transform
         """
         self._model = DeepseekVLV2ForCausalLM.from_pretrained(
             DEEPSEEK_MODELS[model_name]["ckpt_path"],
             torch_dtype=torch.float16,
             trust_remote_code=True,
-            device_map="auto"
+            device_map="auto",
+            **kwargs
         )
         self._model.eval()
 
