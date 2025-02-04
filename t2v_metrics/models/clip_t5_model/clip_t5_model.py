@@ -232,7 +232,7 @@ class CLIPT5Model(BaseVisualModel):
         """
         return [ele for sublist in zip(X, [sep]*len(X)) for ele in sublist][:-1]
 
-    def preload_model(self, model_name: str,quant_type: dict = {}):
+    def preload_model(self, model_name: str, **kwargs):
         """
         Function for preloading model
 
