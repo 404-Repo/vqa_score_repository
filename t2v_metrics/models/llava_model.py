@@ -27,6 +27,16 @@ LLAVA_MODELS = {
             'image_aspect_ratio': 'pad',
         },
     },
+    'llava-v1.5-7b-int4': {
+        'tokenizer': {
+            'path' : 'unsloth/llava-1.5-7b-hf-bnb-4bit'
+        },
+        'model': {
+            'path': 'unsloth/llava-1.5-7b-hf-bnb-4bit',
+            'conversation': 'chat',
+            'image_aspect_ratio': 'pad'
+        }
+    },
 }
 
 
