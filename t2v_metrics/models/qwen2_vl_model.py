@@ -63,11 +63,9 @@ class QwenVLModel(BaseVisualModel):
             QWEN2_VL_MODELS[model_name]["ckpt_path"],
             torch_dtype=torch_type,
             _attn_implementation="flash_attention_2",
-            device_map="auto",
+            device_map="cuda",
             **kwargs
         )
-        if "load_in_8bit" not in kwargs.keys():
-            self._model.to(self._device)
 
         self._model.eval()
         self._processor = AutoProcessor.from_pretrained(QWEN2_VL_MODELS[model_name]["ckpt_path"])

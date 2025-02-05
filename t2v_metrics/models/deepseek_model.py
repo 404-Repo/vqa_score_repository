@@ -36,7 +36,7 @@ class DeepSeekModel(BaseVisualModel):
             DEEPSEEK_MODELS[model_name]["ckpt_path"],
             torch_dtype=torch.float16,
             trust_remote_code=True,
-            device_map="auto",
+            device_map="cuda",
             **kwargs
         )
         self._model.eval()

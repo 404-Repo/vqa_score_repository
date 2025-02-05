@@ -35,7 +35,7 @@ class LLaVANextModel(BaseVisualModel):
             LLAVA_NEXT_MODELS[model_name]["ckpt_path"],
             torch_dtype=torch.float16,
             attn_implementation="flash_attention_2",
-            device_map="auto",
+            device_map="cuda",
             **kwargs
         )
         self._processor = LlavaNextProcessor.from_pretrained(LLAVA_NEXT_MODELS[model_name]["ckpt_path"])
