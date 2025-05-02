@@ -4,10 +4,10 @@ from typing import TypedDict
 import torch
 import torch.nn as nn
 
-from t2v_metrics.models.clip_t5_model.clip_t5_model import CLIPT5Model, CLIP_T5_MODELS
-from t2v_metrics.models.qwen2_vl_model import QwenVLModel, QWEN2_VL_MODELS
-from t2v_metrics.models.llava_model import LLaVAModel, LLAVA_MODELS
-from t2v_metrics.models.llava_next_model import LLaVANextModel, LLAVA_NEXT_MODELS
+# from t2v_metrics.models.clip_t5_model.clip_t5_model import CLIPT5Model, CLIP_T5_MODELS
+# from t2v_metrics.models.qwen2_vl_model import QwenVLModel, QWEN2_VL_MODELS
+# from t2v_metrics.models.llava_model import LLaVAModel, LLAVA_MODELS
+# from t2v_metrics.models.llava_next_model import LLaVANextModel, LLAVA_NEXT_MODELS
 from t2v_metrics.models.deepseek_model import DeepSeekModel, DEEPSEEK_MODELS
 
 
@@ -55,15 +55,15 @@ class VQAScore(nn.Module):
         -------
 
         """
-        if model_name in CLIP_T5_MODELS.keys():
-            self._model = CLIPT5Model()
-        elif model_name in LLAVA_MODELS.keys():
-            self._model = LLaVAModel()
-        elif model_name in QWEN2_VL_MODELS.keys():
-            self._model = QwenVLModel()
-        elif model_name in LLAVA_NEXT_MODELS.keys():
-            self._model = LLaVANextModel()
-        elif model_name in DEEPSEEK_MODELS.keys():
+        # if model_name in CLIP_T5_MODELS.keys():
+        #     self._model = CLIPT5Model()
+        # elif model_name in LLAVA_MODELS.keys():
+        #     self._model = LLaVAModel()
+        # elif model_name in QWEN2_VL_MODELS.keys():
+        #     self._model = QwenVLModel()
+        # elif model_name in LLAVA_NEXT_MODELS.keys():
+        #     self._model = LLaVANextModel()
+        if model_name in DEEPSEEK_MODELS.keys():
             self._model = DeepSeekModel()
         else:
             ValueError(f"Passed model name <{model_name}> is not implemented or recognised.")
