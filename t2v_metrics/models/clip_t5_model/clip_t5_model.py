@@ -189,6 +189,20 @@ class CLIPT5Model(BaseVisualModel):
     def _format_answer(self, answer):
         return answer
 
+    def format_answer(self, answer: str):
+        """
+        Function for formatting the answer according to predefined rules
+
+        Parameters
+        ----------
+        answer: input string with answer
+
+        Returns
+        -------
+        formatted answer according to the predefined template
+        """
+        return answer
+
     def _tokenize_image_token(self, text: str, image_token_index: int, return_tensors: str | None = None):
         """
         Function for tokenizing input strings with image tokens
